@@ -8,7 +8,13 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/harrisoncramer/go-serverless/handlers"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
+	"github.com/harrisoncramer/go-serverless/pkg/handlers"
+)
+
+var (
+	dynaClient dynamodbiface.DynamoDBAPI
 )
 
 func main() {
@@ -22,7 +28,7 @@ func main() {
 		log.Fatal("AWS Session could not be established")
 	}
 
-	// dynaClient := dynamodb.New(awsSession)
+	dynaClient = dynamodb.New(awsSession)
 	lambda.Start(handler)
 }
 
@@ -31,6 +37,15 @@ const tableName = "LambdaInGoUser"
 func handler(req events.APIGatewayProxyRequest) *events.APIGatewayProxyResponse {
 	switch req.HTTPMethod {
 	case "GET":
-		return handlers.GetUser
+		return handlers.GetUser(req, tableName, dynaClient)
+	case "POST":
+		return handlers.CreateUser(req, tableName, dynaClient)
+	case "PUT":
+		return handlers.UpdateUser(req, tableName, dynaClient)
+	case "DELETE":
+		return handlers.DeleteUser(req, tableName, dynaClient)
+	default:
+		return handlers.UnhandledMethod()
 	}
+
 }
