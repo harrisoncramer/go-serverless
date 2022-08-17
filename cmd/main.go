@@ -34,7 +34,7 @@ func main() {
 
 const tableName = "LambdaInGoUser"
 
-func handler(req events.APIGatewayProxyRequest) *events.APIGatewayProxyResponse {
+func handler(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 	switch req.HTTPMethod {
 	case "GET":
 		return handlers.GetUser(req, tableName, dynaClient)
